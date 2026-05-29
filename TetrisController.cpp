@@ -1,5 +1,6 @@
 #include "TetrisController.h"
 #include <QTime>
+#include <QDate>
 #include <QSettings>
 #include <cmath>
 #include <algorithm>

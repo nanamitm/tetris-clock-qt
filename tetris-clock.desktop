@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Tetris Clock
+Comment=Tetris-style clock application using Qt6/QML
+Exec=tetris-clock
+Icon=tetris-clock
+Terminal=false
+Categories=Utility;Clock;

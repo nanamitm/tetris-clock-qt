@@ -1,0 +1,157 @@
+name: Build and Release
+
+on:
+  push:
+    branches: [ "master" ]
+    tags: [ "v*" ]
+  pull_request:
+    branches: [ "master" ]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build (${{ matrix.platform }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-2022
+            platform: windows
+          - os: ubuntu-22.04
+            platform: linux
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      # --- Windows Build Step ---
+      - name: Install Qt (Windows)
+        if: matrix.platform == 'windows'
+        uses: jurplel/install-qt-action@v3
+        with:
+          version: '6.6.3'
+          host: 'windows'
+          target: 'desktop'
+          arch: 'win64_msvc2019_64'
+          cache: true
+
+      - name: Setup MSVC (Windows)
+        if: matrix.platform == 'windows'
+        uses: ilammy/msvc-dev-cmd@v1
+
+      - name: Configure CMake (Windows)
+        if: matrix.platform == 'windows'
+        run: |
+          cmake -B build -G "Visual Studio 17 2022" -A x64 -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build (Windows)
+        if: matrix.platform == 'windows'
+        run: |
+          cmake --build build --config Release
+
+      - name: Package (Windows)
+        if: matrix.platform == 'windows'
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $version = if ($env:GITHUB_REF_TYPE -eq 'tag') { $env:GITHUB_REF_NAME } else { $env:GITHUB_SHA.Substring(0, 7) }
+          $package_name = "TetrisClock-Windows-$version"
+          $stage = Join-Path $env:RUNNER_TEMP $package_name
+          New-Item -ItemType Directory -Path $stage | Out-Null
+          
+          # Copy executable
+          Copy-Item build\Release\tetris-clock.exe $stage\
+          
+          # Deploy Qt dependencies using windeployqt
+          windeployqt --qmldir . --no-compiler-runtime "$stage\tetris-clock.exe"
+          
+          # Compress to zip
+          Compress-Archive -Path "$stage\*" -DestinationPath "$package_name.zip" -Force
+          
+          "ASSET_PATH=$package_name.zip" | Out-File -FilePath $env:GITHUB_ENV -Append
+          "ASSET_NAME=$package_name.zip" | Out-File -FilePath $env:GITHUB_ENV -Append
+
+      # --- Linux Build Step ---
+      - name: Install Dependencies (Linux)
+        if: matrix.platform == 'linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential libgl1-mesa-dev libglvnd-dev libegl1-mesa-dev libxcb-xinerama0 libxcb-cursor0
+
+      - name: Install Qt (Linux)
+        if: matrix.platform == 'linux'
+        uses: jurplel/install-qt-action@v3
+        with:
+          version: '6.6.3'
+          host: 'linux'
+          target: 'desktop'
+          arch: 'gcc_64'
+          cache: true
+
+      - name: Configure CMake (Linux)
+        if: matrix.platform == 'linux'
+        run: |
+          cmake -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr
+
+      - name: Build (Linux)
+        if: matrix.platform == 'linux'
+        run: |
+          cmake --build build --config Release --verbose
+
+      - name: Print Build Logs on Failure (Linux)
+        if: failure() && matrix.platform == 'linux'
+        run: |
+          if [ -d build ]; then
+            find build -name "CMakeError.log" -exec cat {} \;
+            find build -name "CMakeOutput.log" -exec cat {} \;
+          fi
+
+      - name: Install to AppDir (Linux)
+        if: matrix.platform == 'linux'
+        run: |
+          cmake --install build --prefix AppDir/usr
+
+      - name: Install linuxdeploy (Linux)
+        if: matrix.platform == 'linux'
+        id: install-linuxdeploy
+        uses: miurahr/install-linuxdeploy-action@v1
+        with:
+          plugins: qt
+
+      - name: Build AppImage (Linux)
+        if: matrix.platform == 'linux'
+        env:
+          QML_SOURCES_PATHS: .
+        run: |
+          # Run linuxdeploy to generate the AppImage
+          # It automatically picks up the installed desktop file and icon from AppDir/usr
+          ${{ steps.install-linuxdeploy.outputs.linuxdeploy }} --appdir AppDir \
+            --plugin qt \
+            --output appimage
+          
+          # Find the generated AppImage and rename it to standard format with version
+          version=$(if [ "$GITHUB_REF_TYPE" = "tag" ]; then echo "$GITHUB_REF_NAME"; else echo "${GITHUB_SHA:0:7}"; fi)
+          generated_file=$(ls *.AppImage | head -n 1)
+          mv "$generated_file" "TetrisClock-Linux-$version-x86_64.AppImage"
+          
+          echo "ASSET_PATH=TetrisClock-Linux-$version-x86_64.AppImage" >> $GITHUB_ENV
+          echo "ASSET_NAME=TetrisClock-Linux-$version-x86_64.AppImage" >> $GITHUB_ENV
+
+      # --- Common Release Steps ---
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: TetrisClock-${{ matrix.platform }}
+          path: ${{ env.ASSET_PATH }}
+
+      - name: Create GitHub Release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ${{ env.ASSET_PATH }}

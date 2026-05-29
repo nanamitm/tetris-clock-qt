@@ -16,6 +16,10 @@ qt_add_executable(TetrisClock
     DigitPatterns.h
 )
 
+set_target_properties(TetrisClock PROPERTIES
+    OUTPUT_NAME "tetris-clock"
+)
+
 qt_add_qml_module(TetrisClock
     URI TetrisClock
     VERSION 1.0
@@ -52,3 +56,21 @@ if(ANDROID)
         )
     endif()
 endif()
+
+# Install rules for Desktop platforms (Linux / Windows / macOS)
+if(NOT ANDROID)
+    install(TARGETS TetrisClock
+        BUNDLE DESTINATION .
+        RUNTIME DESTINATION bin
+    )
+    
+    if(UNIX AND NOT APPLE)
+        install(FILES tetris-clock.desktop
+            DESTINATION share/applications
+        )
+        install(FILES tetris-clock.svg
+            DESTINATION share/icons/hicolor/scalable/apps
+        )
+    endif()
+endif()
+

@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <!-- Background Gradient -->
+    <linearGradient id="bg-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1e1e2f" />
+      <stop offset="100%" stop-color="#0f0f15" />
+    </linearGradient>
+    
+    <!-- Neon Gradients for Tetris Blocks -->
+    <linearGradient id="cyan-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00f2fe" />
+      <stop offset="100%" stop-color="#4facfe" />
+    </linearGradient>
+    <linearGradient id="orange-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffb347" />
+      <stop offset="100%" stop-color="#ffcc33" />
+    </linearGradient>
+    <linearGradient id="magenta-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f857a6" />
+      <stop offset="100%" stop-color="#ff5858" />
+    </linearGradient>
+    
+    <!-- Subtle Glow Filter -->
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="6" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+  </defs>
+
+  <!-- Base App Icon Card -->
+  <rect x="32" y="32" width="448" height="448" rx="96" fill="url(#bg-grad)" stroke="#2a2a40" stroke-width="6" />
+
+  <!-- Outer Ring (Clock Theme) -->
+  <circle cx="256" cy="256" r="190" fill="none" stroke="#2e2e4a" stroke-width="4" stroke-dasharray="10 15" />
+
+  <!-- Tetris Clock Display Area (Sleek Border) -->
+  <rect x="110" y="160" width="292" height="192" rx="16" fill="#0d0d13" stroke="#ff007f" stroke-width="3" filter="url(#glow)" />
+  
+  <!-- Tetris Grid Lines -->
+  <path d="M 146.5 160 L 146.5 352 M 183 160 L 183 352 M 219.5 160 L 219.5 352 M 256 160 L 256 352 M 292.5 160 L 292.5 352 M 329 160 L 329 352 M 365.5 160 L 365.5 352" fill="none" stroke="#1b1b26" stroke-width="1" />
+  <path d="M 110 192 L 402 192 M 110 224 L 402 224 M 110 256 L 402 256 M 110 288 L 402 288 M 110 320 L 402 320" fill="none" stroke="#1b1b26" stroke-width="1" />
+
+  <!-- Tetris Blocks -->
+  <!-- Cyan I-Piece (horizontal at bottom) -->
+  <rect x="146.5" y="320" width="146" height="32" rx="4" fill="url(#cyan-grad)" stroke="#0d0d13" stroke-width="2" />
+  
+  <!-- Magenta T-Piece -->
+  <path d="M 219.5 288 L 292.5 288 L 292.5 256 L 256 256 L 256 224 L 219.5 224 Z" fill="url(#magenta-grad)" stroke="#0d0d13" stroke-width="2" />
+  
+  <!-- Orange L-Piece -->
+  <path d="M 329 320 L 365.5 320 L 365.5 224 L 329 224 Z" fill="url(#orange-grad)" stroke="#0d0d13" stroke-width="2" />
+  
+  <!-- Small details: Glowing Dots (colon) in the middle -->
+  <circle cx="256" cy="236" r="6" fill="#00ffcc" filter="url(#glow)" />
+  <circle cx="256" cy="276" r="6" fill="#00ffcc" filter="url(#glow)" />
+</svg>
