@@ -4,8 +4,6 @@ Qt6/QML implementation of a Tetris-style clock — Tetris pieces fall to form th
 
 Runs on **Windows / macOS / Linux** and **Android** (tablet-friendly, landscape).
 
-![Tetris Clock screenshot](docs/screenshot.png)
-
 ## Features
 
 - Authentic Tetris piece animations (piece shapes and rotations match the original Arduino library)
