@@ -1,0 +1,26 @@
+# Build output
+build/
+CMakeFiles/
+cmake-build-*/
+
+# Qt Creator
+.qtcreator/
+*.user
+*.user.*
+
+# Signing secrets (NEVER commit this)
+android-signing.properties
+
+# Android build artifacts
+android-build-*/
+*.apk
+*.aab
+
+# CMake cache
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+
+# OS
+.DS_Store
+Thumbs.db
