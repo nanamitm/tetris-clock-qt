@@ -1,6 +1,7 @@
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
+#include <QIcon>
 #include "TetrisController.h"
 
 using namespace Qt::StringLiterals;
@@ -9,6 +10,7 @@ int main(int argc, char* argv[])
 {
     QGuiApplication app(argc, argv);
     app.setApplicationName("TetrisClock");
+    app.setWindowIcon(QIcon(":/TetrisClock/tetris-clock.svg"));
 
     TetrisController controller;
 

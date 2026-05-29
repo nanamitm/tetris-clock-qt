@@ -9,11 +9,17 @@ find_package(Qt6 REQUIRED COMPONENTS Quick Core)
 
 qt_standard_project_setup(REQUIRES 6.5)
 
-qt_add_executable(TetrisClock
+set(WIN32_RESOURCES)
+if(WIN32)
+    set(WIN32_RESOURCES resources.rc)
+endif()
+
+qt_add_executable(TetrisClock WIN32
     main.cpp
     TetrisController.h
     TetrisController.cpp
     DigitPatterns.h
+    ${WIN32_RESOURCES}
 )
 
 set_target_properties(TetrisClock PROPERTIES
@@ -25,6 +31,8 @@ qt_add_qml_module(TetrisClock
     VERSION 1.0
     QML_FILES
         Main.qml
+    RESOURCES
+        tetris-clock.svg
 )
 
 target_link_libraries(TetrisClock PRIVATE Qt6::Quick Qt6::Core)
